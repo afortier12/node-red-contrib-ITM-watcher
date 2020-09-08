@@ -1,7 +1,7 @@
 {
-  "name": "node-red-contrib-excel",
+  "name": "node-red-contrib-kardex-ITM-purchasing",
   "version": "1.0.0",
-  "description": "import excel files and convert contents to json",
+  "description": "pre-process imported Excel BOM and kitting BOMs to generate Kardex import files",
   "dependencies": {
     "exceljs": "^4.1.1",
     "fs": "0.0.1-security",
@@ -10,7 +10,7 @@
   },
   "node-red": {
     "nodes": {
-      "import": "/pallets/excel-import/import.js"
+      "import": "/pallets/BOM-preprocess/import.js"
     }
   },
   "nodemonConfig": {
