@@ -1,5 +1,5 @@
 {
-  "name": "node-red-contrib-kardex-ITM-purchasing",
+  "name": "node-red-contrib-kardex-itm-purchasing",
   "version": "1.0.0",
   "description": "pre-process imported Excel BOM and kitting BOMs to generate Kardex import files",
   "dependencies": {
@@ -10,7 +10,7 @@
   },
   "node-red": {
     "nodes": {
-      "import": "/pallets/BOM-preprocess/import.js"
+      "import": "/pallets/BOM-preprocess/bom_preprocess.js"
     }
   },
   "nodemonConfig": {
@@ -25,5 +25,16 @@
   },
   "author": "",
   "license": "ISC",
-  "main": "index.js"
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afortier12/node-red-kardex-ITM-purchasing.git"
+  },
+  "bugs": {
+    "url": "https://github.com/afortier12/node-red-kardex-ITM-purchasing/issues"
+  },
+  "homepage": "https://github.com/afortier12/node-red-kardex-ITM-purchasing#readme"
 }
