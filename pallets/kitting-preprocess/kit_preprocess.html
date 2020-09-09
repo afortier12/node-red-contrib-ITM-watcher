@@ -1,0 +1,26 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Kit Pre-process',{
+        category: 'custom',
+        color: '#CCFFFF',
+        defaults:{},
+        inputs:1,
+        outputs:2,
+        icon: "itm_logo_icon.png",
+        label: function() {
+            return this.name||"Kit Pre-process";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="Kit Pre-process">
+    <div class="form-row">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Kit Pre-process">
+    <p>Node accepts an array of filename + data from csv files.
+       Data is in the form of a string with commas separating columns and 
+       newline characters separating rows.
+       Each array is a row of the BOM and is formatted and processed <br>
+       Output is sent to the generate import files node  </p>
+</script>

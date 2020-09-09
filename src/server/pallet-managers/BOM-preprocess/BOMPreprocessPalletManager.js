@@ -18,22 +18,39 @@ class BOMPreprocessPalletManager extends PalletManager {
 
         const {sheetname, file, bom } = msg.payload;
         var errorMsg = "";
+        var errorCode = 0;          //0-no error, 1-message only, 2-job number prompt
         const { assert, Console } = require('console');
         
     
         const getJobNumber = async(file) =>{
+            var jobNumber = "";
             var pos =  file.lastIndexOf("/");
             if (pos > 0) {
                 var filename = file.slice(pos+1, file.length);
                 if (isNaN(filename.slice(0,1))){
-                    return filename.slice(0,5);
-                } else if (isNaN(filename.slice(4,5))){
-                    return filename.slice(0,4);
+                    jobNumber = filename.slice(0,5);
+                    if (isNaN(jobNumber.substring(1, 5))){
+                        errorCode = 2;
+                        errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
+                    }
+                } else if (isNaN(filename.slice(4,5)) || (filename.slice(4,5) === ' ')){
+                    jobNumber = filename.slice(0,4);
+                    if (isNaN(jobNumber)){
+                        errorCode = 2;
+                        errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
+                    }
                 } else {
-                    return filename.slice(0,5);
+                    jobNumber = filename.slice(0,5);
+                    if (isNaN(jobNumber)){
+                        errorCode = 2;
+                        errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
+                    }
                 }
+                if (errorCode > 0) return null;
+                else return jobNumber;
 
             } else {
+                errorCode = 1;
                 errorMsg = "Path not found in file name";
                 return null;
             }
@@ -43,51 +60,48 @@ class BOMPreprocessPalletManager extends PalletManager {
             let rowarray = [];
             let new_bom =[];
 
-            for (var ri = 4; ri < bom.length; ri++){
-                let emptyFlag = false;
-                //check for empty values
-                if (bom[ri][3] === null || typeof bom[ri][3] === 'undefined'|| bom[ri][3].toString().length === 0){
-                    emptyFlag=true;
+            for (var ri = 1; ri < bom.length; ri++){
+                if (bom[ri].length < 9){
+                    continue;
+                } else if (bom[ri].length > 9) {
+                    bom[ri] = bom[ri].slice(0,9);
                 } 
-                if (bom[ri][2] === null || typeof bom[ri][2] === 'undefined'|| bom[ri][2].toString().length === 0) {
-                    emptyFlag=true;
-                }
-                if (bom[ri][1] === null || typeof bom[ri][1] === 'undefined'|| bom[ri][1].toString().length === 0) {
-                    emptyFlag=true;
-                }
-                if (bom[ri][5] === null || typeof bom[ri][5] === 'undefined'|| bom[ri][5].toString().length === 0){
-                     emptyFlag=true;
-                }
-                if (emptyFlag) return null;
-                
                 for (var ci = 0; ci < bom[ri].length; ci++){
-                    let str = bom[ri][ci].toString();
-                    //remove quotation marks
-                    str = str.replace("\"", "");
-                    //remove commas (delimiter for Kardex import)
-                    str = str.replace(",", "");
+                    if ((ci < 7) && (bom[ri][ci] === null || typeof bom[ri][ci] === 'undefined' || bom[ri][ci].toString().length === 0)){
+                        errorCode = 3;
+                        errorMsg = "Empty cell found at row ${ ri }, column ${ci}";
+                        return null;
+                    } else {
+                        let str = bom[ri][ci].toString();
+                        //remove quotation marks
+                        str = str.replace("\"", "");
+                        //remove commas (delimiter for Kardex import)
+                        str = str.replace(",", "");
 
-                    if(ci === 3){
-                        //replace characters that cause import issues
-                        let str = bom[ri][3];
-                        if (str.includes("Ø")){
-                            str = str.replace(/Ø/gi, ""); //diameter symbol 
+                        if(ci === 3){
+                            //replace characters that cause import issues
+                            let str = bom[ri][3];
+                            if (str.includes("Ø")){
+                                str = str.replace(/Ø/gi, ""); //diameter symbol 
+                            }
+                            if (str.includes(" X ")){
+                                str = str.replace(" X ", " x ");
+                            }
+                            if (str.includes("dia") || str.includes("DIA") ||str.includes("Dia")){
+                                str = str.replace(/dia/gi, "");
+                            }
                         }
-                        if (str.includes(" X ")){
-                            str = str.replace(" X ", " x ");
-                        }
-                        if (str.includes("dia") || str.includes("DIA") ||str.includes("Dia")){
-                            str = str.replace(/dia/gi, "");
-                        }
-                    }
 
-                    //check if any text is greater than 35 chars
-                    if (str.length > 35){
-                        str = str.substring(0, 35);
+                        //check if any text is greater than 35 chars
+                        if (str.length > 35){
+                            str = str.substring(0, 35);
+                        }
+                        rowarray.push(str);
                     }
-                    rowarray.push(str);
                 }
-                new_bom.push(rowarray);
+                if (rowarray.length > 0 ){
+                    new_bom.push(rowarray);
+                }
                 rowarray = [];
             }
 
@@ -103,14 +117,22 @@ class BOMPreprocessPalletManager extends PalletManager {
             try {
                 let jobNumber = await getJobNumber(file);
                 if (jobNumber === null){
-                    msg.payload = errorMsg;
+                    if (errorCode === 2){
+                        msg.topic = "Invalid Job Number!";
+                    } else if(errorCode === 3){
+                        msg.topic = "Empty cell found!";
+                    } else {
+                        msg.topic = "Filename Invalid!";
+                    }
+                    msg.errorCode = errorcode;
+                    msg.payload = errorMsg;                
                     this.send([null,msg]);
                 } else {
                     msg.jobNumber = jobNumber;
                     let new_bom = await formatBOM(bom);
-                    msg.bom = new_bom;
-                    //this._extendMsgPayload(msg, excelJSON);
-                    this.send([msg, null]);
+                    var newMsg = {}
+                    this._extendMsgPayload(newMsg, { "jobnumber":jobNumber, "bom":new_bom });
+                    this.send([newMsg, null]);
                 }
             } catch (error) {
                 this._processError(error);

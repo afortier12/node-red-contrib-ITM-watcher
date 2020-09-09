@@ -10,7 +10,8 @@
   },
   "node-red": {
     "nodes": {
-      "import": "/pallets/BOM-preprocess/bom_preprocess.js"
+      "bom": "/pallets/BOM-preprocess/bom_preprocess.js",
+      "kit": "/pallets/kitting-preprocess/kit_preprocess.js"
     }
   },
   "nodemonConfig": {
