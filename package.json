@@ -11,7 +11,8 @@
   "node-red": {
     "nodes": {
       "bom": "/pallets/BOM-preprocess/bom_preprocess.js",
-      "kit": "/pallets/kitting-preprocess/kit_preprocess.js"
+      "kit": "/pallets/kitting-preprocess/kit_preprocess.js",
+      "file_import": "/pallets/Kardex-Kit-Import/kardex_file_import.js"
     }
   },
   "nodemonConfig": {

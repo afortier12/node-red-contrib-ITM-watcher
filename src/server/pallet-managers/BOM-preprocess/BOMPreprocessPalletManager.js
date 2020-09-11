@@ -24,7 +24,7 @@ class BOMPreprocessPalletManager extends PalletManager {
     
         const getJobNumber = async(file) =>{
             var jobNumber = "";
-            var pos =  file.lastIndexOf("/");
+            var pos =  file.lastIndexOf("\\");
             if (pos > 0) {
                 var filename = file.slice(pos+1, file.length);
                 if (isNaN(filename.slice(0,1))){
@@ -67,11 +67,11 @@ class BOMPreprocessPalletManager extends PalletManager {
                     bom[ri] = bom[ri].slice(0,9);
                 } 
                 for (var ci = 0; ci < bom[ri].length; ci++){
-                    if ((ci < 7) && (bom[ri][ci] === null || typeof bom[ri][ci] === 'undefined' || bom[ri][ci].toString().length === 0)){
+                    if ((ci < 6) && (bom[ri][ci] === null || typeof bom[ri][ci] === 'undefined' || bom[ri][ci].toString().length === 0)){
                         errorCode = 3;
                         errorMsg = "Empty cell found at row ${ ri }, column ${ci}";
                         return null;
-                    } else {
+                    } else if (Object.prototype.toString.call(bom[ri][ci]) === '[object String]'){
                         let str = bom[ri][ci].toString();
                         //remove quotation marks
                         str = str.replace("\"", "");
@@ -90,7 +90,13 @@ class BOMPreprocessPalletManager extends PalletManager {
                             if (str.includes("dia") || str.includes("DIA") ||str.includes("Dia")){
                                 str = str.replace(/dia/gi, "");
                             }
-                        }
+                    } else if (typeof bom[ri][ci] !== 'number'){
+                        str = "" + bom[ri][ci];
+                    } else {
+                        errorCode = 4;
+                        errorMsg = "Unrecognized data type at row ${ ri }, column ${ci}";
+                        return null;
+                    }
 
                         //check if any text is greater than 35 chars
                         if (str.length > 35){
@@ -130,9 +136,20 @@ class BOMPreprocessPalletManager extends PalletManager {
                 } else {
                     msg.jobNumber = jobNumber;
                     let new_bom = await formatBOM(bom);
-                    var newMsg = {}
-                    this._extendMsgPayload(newMsg, { "jobnumber":jobNumber, "bom":new_bom });
-                    this.send([newMsg, null]);
+                    if (new_bom === null){
+                        if(errorCode === 3){
+                            msg.topic = "Empty cell found!";
+                        } else {
+                            msg.topic = "Error";
+                        }
+                        msg.errorCode = errorCode;
+                        msg.payload = errorMsg;                
+                        this.send([null,msg]);
+                    } else {
+                        var newMsg = {}
+                        this._extendMsgPayload(newMsg, { "jobnumber":jobNumber, "bom":new_bom });
+                        this.send([newMsg, null]);
+                    }
                 }
             } catch (error) {
                 this._processError(error);

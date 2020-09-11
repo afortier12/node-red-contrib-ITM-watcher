@@ -29,7 +29,7 @@ class PalletManager {
     _extendMsgPayload(msg, object) {
         msg.payload = _.isObject(msg.payload) ? msg.payload : {};
         this.status({});
-        _.extend(msg.payload, object)
+        _.extend(msg.payload, object);
     }
 
    

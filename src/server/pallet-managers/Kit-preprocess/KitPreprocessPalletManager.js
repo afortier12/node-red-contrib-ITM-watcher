@@ -20,12 +20,12 @@ class KitPreprocessPalletManager extends PalletManager {
         var errorMsg = "";
         var errorCode = 0;          //0-no error, 1-message only, 2-kit number invalid, 3-job kit mismatch, 4- empty cells
         var kitJobNumber = "";
-        var kitNumber = "";
+        var kitNumber = [];
         const { assert, Console } = require('console');
         
     
         const verifyKitNumber = async(data) =>{
-            
+            var tempKitNumber = "";
             var breakloop = false;
             data.forEach(function (file, idx, arr){
                 if (breakloop) return;
@@ -40,21 +40,21 @@ class KitPreprocessPalletManager extends PalletManager {
                     }
                     if (filename.lastIndexOf("-") > 0){
                         kitJobNumber = tempfilename.substring(0,tempfilename.lastIndexOf("-"));
-                        kitNumber = tempfilename.substring(tempfilename.lastIndexOf("-") + 1, tempfilename.length);
+                        tempKitNumber = tempfilename.substring(tempfilename.lastIndexOf("-") + 1, tempfilename.length);
                     } else if (filename.lastIndexOf("_") > 0){
-                        kitJobNumber = tempfilename.substring(0,tempfilename.lastIndexOf("-"));
-                        kitNumber = tempfilename.substring(tempfilename.lastIndexOf("-") + 1, tempfilename.length);
+                        kitJobNumber = tempfilename.substring(0,tempfilename.lastIndexOf("_"));
+                        tempKitNumber = tempfilename.substring(tempfilename.lastIndexOf("_") + 1, tempfilename.length);
                     } else {
                         errorCode = 2;
                         errorMsg = "Invalid kit number " + filename + "! Must be of the form JOB#-K##";
                         breakloop = true;
                     }
                     
-                    if (!isNaN(kitNumber)){
-                        kitNumber = "K" + kitNumber;
-                    }else if (!kitNumber.match(/(?:[Kk]+\d{2}?)/)){
+                    if (!isNaN(tempKitNumber)){
+                        tempKitNumber = "K" + tempKitNumber;
+                    }else if (!tempKitNumber.match(/(?:[Kk]+\d{2}?)/)){
                         errorCode = 2;
-                        errorMsg = "Invalid kit number ${kitNumber}! Must be of the form K##";
+                        errorMsg = "Invalid kit number ${tempKitNumber}! Must be of the form K##";
                         breakloop = true;
                     }
                     if (kitJobNumber !== jobnumber){
@@ -68,6 +68,9 @@ class KitPreprocessPalletManager extends PalletManager {
                     errorMsg = "Invalid filename: " + filename;
                     breakloop = true;
                 }
+                if (!breakloop){
+                    kitNumber.push(tempKitNumber);
+                }
             });
             return !breakloop;
 
@@ -76,8 +79,10 @@ class KitPreprocessPalletManager extends PalletManager {
         const formatKitBOM = async(data) =>{
 
             let rowarray = [];
-            let new_bom =[];
+            let kit_bom =[];
+            let new_bom = [];
             var breakloop = false;
+
             data.forEach(function (strdata, idx, arr){
                 if (breakloop || !((Object.prototype.toString.call(strdata.data) === '[object String]') && strdata.data.includes("\n"))) return;
                 var kitdata = strdata.data.split("\n");
@@ -118,13 +123,18 @@ class KitPreprocessPalletManager extends PalletManager {
                         }
                     }
                     if (rowarray.length > 0 ){
-                        new_bom.push(rowarray);
+                        kit_bom.push(rowarray);
                     }
                     rowarray = [];
                 }
-                if (breakloop) return null;
-                else return new_bom;
+                if (kit_bom.length > 0){
+                    var new_kit = {"kit":kitNumber[idx], "bom":kit_bom};
+                    new_bom.push(new_kit);
+                }
+                kit_bom = [];
             });
+            if (breakloop) return null;
+            else return new_bom;
         };
        
         
@@ -138,7 +148,7 @@ class KitPreprocessPalletManager extends PalletManager {
                     } else {
                         msg.topic = "Job Number/Kit Mismatch!";
                     }
-                    msg.errorCode = errorcode;
+                    msg.errorCode = errorCode;
                     msg.payload = errorMsg;                
                     this.send([null,msg]);
                 } else {
@@ -149,6 +159,9 @@ class KitPreprocessPalletManager extends PalletManager {
                         } else {
                             msg.topic = "Error!";
                         }
+                        msg.errorCode = errorCode;
+                        msg.payload = errorMsg;                
+                        this.send([null,msg]);
                     } else {
                         var newMsg = {};
                         this._extendMsgPayload(newMsg, { "jobnumber":jobnumber, "data":new_data });

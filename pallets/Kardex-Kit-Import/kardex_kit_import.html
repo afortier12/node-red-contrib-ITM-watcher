@@ -1,0 +1,24 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Kardex Kit Import',{
+        category: 'custom',
+        color: '#CCFFFF',
+        defaults:{},
+        inputs:1,
+        outputs:2,
+        icon: "itm_logo_icon.png",
+        label: function() {
+            return this.name||"Kardex Kit Import";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="Kardex Kit Import">
+    <div class="form-row">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Kardex Kit Import">
+    <p>Node accepts preprocessed master BOM and kit BOMs.
+       Bins are created for the BOM and for kits. Import files are generated
+       and copied to the dedicated network file path </p>
+</script>
