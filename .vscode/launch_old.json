@@ -8,12 +8,9 @@
            "name": "Launch Node-Red", 
            "type": "node", 
            "request": "launch", 
-           //"runtimeExecutable": "nodemon --preserve-symlinks --inspect-brk",
+           "runtimeExecutable": "nodemon --preserve-symlinks --inspect-brk",
            "program": "C:\\Users\\afortier.INTEGRITYPD\\AppData\\Roaming\\npm\\node_modules\\node-red\\red.js",
-           //"restart": true,
-           //"env":{
-           //   "NO_UPDATE_NOTIFIER" : "1"  
-           //}
+           "restart": true,
         },
         {
           "type": "node",

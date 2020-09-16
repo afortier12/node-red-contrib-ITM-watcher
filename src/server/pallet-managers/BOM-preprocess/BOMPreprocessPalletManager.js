@@ -59,6 +59,7 @@ class BOMPreprocessPalletManager extends PalletManager {
         const formatBOM = async(bom) => {
             let rowarray = [];
             let new_bom =[];
+            let str = "";
 
             for (var ri = 1; ri < bom.length; ri++){
                 if (bom[ri].length < 9){
@@ -72,7 +73,7 @@ class BOMPreprocessPalletManager extends PalletManager {
                         errorMsg = "Empty cell found at row ${ ri }, column ${ci}";
                         return null;
                     } else if (Object.prototype.toString.call(bom[ri][ci]) === '[object String]'){
-                        let str = bom[ri][ci].toString();
+                        str = bom[ri][ci].toString();
                         //remove quotation marks
                         str = str.replace("\"", "");
                         //remove commas (delimiter for Kardex import)
@@ -90,20 +91,22 @@ class BOMPreprocessPalletManager extends PalletManager {
                             if (str.includes("dia") || str.includes("DIA") ||str.includes("Dia")){
                                 str = str.replace(/dia/gi, "");
                             }
-                    } else if (typeof bom[ri][ci] !== 'number'){
+                        }
+                    } else if (typeof bom[ri][ci] === 'number'){
                         str = "" + bom[ri][ci];
+                    } else if (typeof bom[ri][ci] === 'undefined'){
+                        str = "";
                     } else {
                         errorCode = 4;
                         errorMsg = "Unrecognized data type at row ${ ri }, column ${ci}";
                         return null;
                     }
 
-                        //check if any text is greater than 35 chars
-                        if (str.length > 35){
-                            str = str.substring(0, 35);
-                        }
-                        rowarray.push(str);
+                    //check if any text is greater than 35 chars
+                    if (str.length > 35){
+                        str = str.substring(0, 35);
                     }
+                    rowarray.push(str);
                 }
                 if (rowarray.length > 0 ){
                     new_bom.push(rowarray);

@@ -16,7 +16,7 @@ class KitPreprocessPalletManager extends PalletManager {
 
     onInput(msg){
 
-        const { jobnumber, data } = msg.payload;
+        const { jobnumber, bom, data } = msg.payload;
         var errorMsg = "";
         var errorCode = 0;          //0-no error, 1-message only, 2-kit number invalid, 3-job kit mismatch, 4- empty cells
         var kitJobNumber = "";
@@ -78,22 +78,22 @@ class KitPreprocessPalletManager extends PalletManager {
     
         const formatKitBOM = async(data) =>{
 
-            let rowarray = [];
-            let kit_bom =[];
             let new_bom = [];
             var breakloop = false;
+
 
             data.forEach(function (strdata, idx, arr){
                 if (breakloop || !((Object.prototype.toString.call(strdata.data) === '[object String]') && strdata.data.includes("\n"))) return;
                 var kitdata = strdata.data.split("\n");
+                var new_kit = {kit:"", bom:[]};
+                new_kit.kit = kitNumber[idx];
                 for (var ri = 0; ri < kitdata.length; ri++){
                     if ((Object.prototype.toString.call(kitdata[ri]) === '[object String]') && kitdata[ri].includes(",")){
+                        var kit_item = [];
                         var kitrow = kitdata[ri].split(",");
                         for (var ci = 1; ci < kitrow.length; ci++){
                             if ((ci < 6) && (kitrow[ci] === null || typeof kitrow[ci] === 'undefined' ||kitrow[ci].toString().length === 0)){
-                                errorCode = 4;
-                                errorMsg = "Empty cell found at row " + ri.toString() + ", column "+ ci.toString();
-                                breakloop = true;
+                                v
                             } else {
                                 let str = kitrow[ci].toString();
                                 //remove quotation marks
@@ -118,23 +118,86 @@ class KitPreprocessPalletManager extends PalletManager {
                                 if (str.length > 35){
                                     str = str.substring(0, 35);
                                 }
-                                rowarray.push(str);
+                                kit_item.push(str);
                             }
                         }
                     }
-                    if (rowarray.length > 0 ){
-                        kit_bom.push(rowarray);
+                    if (kit_item.length > 0 ){
+                        new_kit.bom.push(kit_item);
                     }
-                    rowarray = [];
                 }
-                if (kit_bom.length > 0){
-                    var new_kit = {"kit":kitNumber[idx], "bom":kit_bom};
+                if (new_kit.bom.length > 0){
                     new_bom.push(new_kit);
                 }
-                kit_bom = [];
             });
             if (breakloop) return null;
             else return new_bom;
+        };
+
+
+        const checkBOMAgainstKit = async(bom, data) =>{
+            let new_bom_line = [];
+            let new_bom = [];
+            let kit_number = "";
+            
+            bom.forEach(function (item, idx, arr){
+                let bom_det = item[1];
+                let bom_qty = item[5];
+                let item_found = false;
+                let kit_total_qty = 0;
+                let bom_split1 = item.slice(0,4);
+                let bom_split2 = item.slice(6);
+
+                let isnum = /^\d+$/.test(bom_qty);
+
+                if (isnum){
+                    for (idx = 0; idx < data.length; idx++){
+                        let kit_item_found = false;
+                        let kit_qty = 0;
+                        
+                        kit_number = data[idx].kit;
+                        let kit_bom = data[idx].bom;
+                        for (let kidx=0; kidx < kit_bom.length; kidx++){
+                            var kit_item = kit_bom[kidx];
+                            var kit_det = kit_item[0];
+                            isnum = /^\d+$/.test(kit_item[0]);
+                            if (isnum){
+                                if (kit_det==bom_det && !kit_item_found){
+                                    kit_item_found = true;
+                                    item_found = true;
+                                    kit_qty = kit_item[4];
+                                    isnum = /^\d+$/.test(kit_qty);
+                                    if (isnum){
+                                        kit_total_qty = kit_total_qty + parseInt(kit_qty);
+                                    } else {
+                                        errorCode = 7;
+                                        errorMsg = "Kit item has and invalid quantity value: DET#" + kit_det + ", quantity=" + kit_qty +"!";
+                                    }
+                                }
+                            }
+                        }
+                        if (kit_item_found){
+                            new_bom_line = bom_split1.concat([kit_qty])
+                            new_bom_line = new_bom_line.concat([kit_number])
+                            new_bom_line = new_bom_line.concat(bom_split2);
+                            new_bom.push(new_bom_line);
+                            new_bom_line = [];
+                        }
+                    }
+                    if (parseInt(bom_qty) < kit_total_qty && item_found){
+                        errorCode = 5;
+                        errorMsg = "Kit required quantity (" + kit_total_qty.toString() + ") is higher than BOM quantity ("+ bom_qty.toString() + ")!";
+                    } else if (parseInt(bom_qty) > kit_total_qty && item_found){
+                        new_bom_line = bom_split1.concat([kit_qty])
+                        new_bom_line = new_bom_line.concat(["None"])
+                        new_bom_line = new_bom_line.concat(bom_split2);
+                        new_bom.push(new_bom_line);
+                        new_bom_line = [];
+                    }
+                } 
+
+            });
+            return new_bom;
         };
        
         
@@ -163,9 +226,21 @@ class KitPreprocessPalletManager extends PalletManager {
                         msg.payload = errorMsg;                
                         this.send([null,msg]);
                     } else {
-                        var newMsg = {};
-                        this._extendMsgPayload(newMsg, { "jobnumber":jobnumber, "data":new_data });
-                        this.send([newMsg, null]);
+                        let new_bom = await checkBOMAgainstKit(bom, new_data);
+                        if (new_bom === null || typeof new_bom === 'undefined'){
+                            if (errorCode === 5){
+                                msg.topic = "Kit item not found in BOM!";
+                            } else {
+                                msg.topic = "Error!";
+                            }
+                            msg.errorCode = errorCode;
+                            msg.payload = errorMsg;                
+                            this.send([null,msg]);
+                        } else {
+                            var newMsg = {};
+                            this._extendMsgPayload(newMsg, { "jobnumber":jobnumber, "bom": new_bom, "data":new_data });
+                            this.send([newMsg, null]);
+                        }
                     }
                 }
             } catch (error) {

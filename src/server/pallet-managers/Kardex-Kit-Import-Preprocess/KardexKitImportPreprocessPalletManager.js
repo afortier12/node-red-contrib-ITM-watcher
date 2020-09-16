@@ -23,6 +23,12 @@ class KardexKitImportPreprocessPalletManager extends PalletManager {
         var kitNumber = [];
         const { assert, Console } = require('console');
         
+        //check if BOM and kit match
+        //if BOM item is in multiple kits, add additional entries in BOM
+        const compareBOMandKit = async(data) => {
+            
+        }
+
         //update BOM with kit data
         const updateBOM = async(data) =>{
             
