@@ -1,0 +1,352 @@
+[
+  {
+    "kit": "K03",
+    "description": "",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K04",
+    "description": "",
+    "width": 16,
+    "depth": 24,
+    "height": 8.5
+  },
+  {
+    "kit": "K05",
+    "description": "",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K06",
+    "description": "",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K07",
+    "description": "",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K08",
+    "description": "",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K09",
+    "description": "",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K10",
+    "description": "",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K12",
+    "description": "",
+    "width": 7,
+    "depth": 24,
+    "height": 6
+  },
+  {
+    "kit": "K40",
+    "description": "HD Ejector Box",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K41",
+    "description": "Lifter Rods and Comps Stage 1",
+    "width": 7,
+    "depth": 24,
+    "height": 6
+  },
+  {
+    "kit": "K42",
+    "description": "Paige Bushings Stage 1",
+    "width": 4.5,
+    "depth": 5.25,
+    "height": 3
+  },
+  {
+    "kit": "K43",
+    "description": "Slide Gibs - Wear Plates Stage 1",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K44",
+    "description": "Insert Comps Stage 1",
+    "width": 4.5,
+    "depth": 5.25,
+    "height": 3
+  },
+  {
+    "kit": "K45",
+    "description": "Retractor Comps Stage 1",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K46",
+    "description": "Hook Slide Comps Stage 1",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K47",
+    "description": "Core Pins and Comps Stage 1",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K51",
+    "description": "Cavity - Core Guide Comps Stage 2",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K52",
+    "description": "3rd Plate Comps Stage 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K53",
+    "description": "Cavity - Core PL Pads - Die Liners Stage 2",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K54",
+    "description": "Slide Comps - Stage 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K55",
+    "description": "Hook Slide Comps Stage 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K56",
+    "description": "Retractor Comps Stage 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K65",
+    "description": "Cavity Manifold Assembly 1",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K66",
+    "description": "Cavity Ejection and Comps Assembly 1",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K67",
+    "description": "Core Ejection and Comps Assembly 1",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K68",
+    "description": "Cavity Hydraulics-Pneumatics Assembly 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K69",
+    "description": "Core Hydraulics-Pneumatics Assembly 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K70",
+    "description": "Ejection Hydraulic-Pneyumatics Assembly 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K71",
+    "description": "Slide Hydraulics Assembly 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K72",
+    "description": "Retractor Hydraulics Assembly 2",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K73",
+    "description": "Cavity Limit Electrical Assembly 3",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K74",
+    "description": "Core Electrical Assembly 3",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K75",
+    "description": "Ejection Electrical Assembly 3",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K76",
+    "description": "Slide Electrical Assembly 3",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K77",
+    "description": "Retracter Electrical Assembly 3",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K78",
+    "description": "Cavity Water Assembly 4",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K79",
+    "description": "Core Water Assembly 4",
+    "width": 4.5,
+    "depth": 5.25,
+    "height": 3
+  },
+  {
+    "kit": "K80",
+    "description": "Lifter Water Assembly 5",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K81",
+    "description": "Slide Water Assembly 5",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K82",
+    "description": "Insert Water Assembly 5",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K83",
+    "description": "Retractor Water Assembly 5",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K84",
+    "description": "Hook Water Slide Assembly 5",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K85",
+    "description": "Cavity Final Assembly 6",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K86",
+    "description": "Core Final Assembly 6",
+    "width": 5.5,
+    "depth": 11,
+    "height": 5
+  },
+  {
+    "kit": "K87",
+    "description": "Ejection Final Assembly 6",
+    "width": 4.5,
+    "depth": 5.25,
+    "height": 3
+  },
+  {
+    "kit": "K88",
+    "description": "Cavity Assembly 7",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K89",
+    "description": "Core Assembly 7",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K90",
+    "description": "Cavity Assembly 8",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  },
+  {
+    "kit": "K91",
+    "description": "Core Assembly 8",
+    "width": 12,
+    "depth": 16,
+    "height": 8.5
+  }
+]

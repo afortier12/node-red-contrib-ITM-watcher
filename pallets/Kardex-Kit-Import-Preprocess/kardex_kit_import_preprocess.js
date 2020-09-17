@@ -1,4 +1,4 @@
-const { KardexKitImportPalletManager } = require('../../src/server/pallet-managers/Kardex-Kit-Import-Preprocess/KardexKitImportPreprocessPalletManager');
+const { KardexKitImportPreprocessPalletManager } = require('../../src/server/pallet-managers/Kardex-Kit-Import-Preprocess/KardexKitImportPreprocessPalletManager');
 const  MODULE_NAME = 'node-red-kardex-itm-purchasing';
 
 console.log(module);
@@ -20,5 +20,5 @@ module.exports = function(RED) {
             
     }
 
-    RED.nodes.registerType('Kardex Kit Import Preprocess', kardexImportPrepNode);
+    RED.nodes.registerType('Kardex Kit Import Pre-process', kardexImportPrepNode);
 }

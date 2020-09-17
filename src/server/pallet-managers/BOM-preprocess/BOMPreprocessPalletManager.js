@@ -54,14 +54,41 @@ class BOMPreprocessPalletManager extends PalletManager {
                 errorMsg = "Path not found in file name";
                 return null;
             }
-        }
+        };
+
+
+        const removeDuplicates = async(bom) => {
+            let new_bom = [];
+            for (var idx = 0; idx < bom.length; idx++){
+                let bom_det = bom[idx][1]; 
+                let bom_qty = bom[idx][5];
+
+                let found = false;
+                let isnum = /^\d+$/.test(bom_det);
+
+                if (isnum && bom[idx].length > 8){
+                    for (var ri = new_bom.length - 1; ri >= 0; ri--){
+                        if (new_bom[ri][1] == bom_det){
+                            new_bom[ri][5] = bom_qty + new_bom[ri][5];
+                            found = true;
+                        } 
+                    }
+                    if (!found){
+                        new_bom.push(bom[idx]);
+                    }
+                }
+            }
+            return new_bom;
+        };
         
-        const formatBOM = async(bom) => {
+        const formatBOM = async(bom) =>{
             let rowarray = [];
             let new_bom =[];
             let str = "";
 
-            for (var ri = 1; ri < bom.length; ri++){
+            bom = await removeDuplicates(bom);
+
+            for (var ri = 0; ri < bom.length; ri++){
                 if (bom[ri].length < 9){
                     continue;
                 } else if (bom[ri].length > 9) {

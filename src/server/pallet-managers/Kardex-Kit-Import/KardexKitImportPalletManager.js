@@ -59,6 +59,10 @@ class KardexKitImportPalletManager extends PalletManager {
                     msg.errorCode = errorCode;
                     msg.payload = errorMsg;                
                     this.send([null,msg]);
+                } else {
+                    var newMsg = {};
+                    this._extendMsgPayload(newMsg, { "jobnumber":jobnumber, "bom": bom, "data":new_data });
+                    this.send([newMsg, null]);
                 }
             } catch (error) {
                 this._processError(error);
