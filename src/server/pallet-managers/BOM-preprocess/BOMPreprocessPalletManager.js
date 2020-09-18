@@ -8,6 +8,7 @@ class BOMPreprocessPalletManager extends PalletManager {
 
         this._self.config = palletConfig;
         this._self.palletType = 'BOM pre-process';
+        this.last_column = 10;
 
         this.onInput = this.onInput.bind(this._self);
 
@@ -92,7 +93,7 @@ class BOMPreprocessPalletManager extends PalletManager {
                 if (bom[ri].length < 9){
                     continue;
                 } else if (bom[ri].length > 9) {
-                    bom[ri] = bom[ri].slice(0,9);
+                    bom[ri] = bom[ri].slice(0,10);
                 } 
                 for (var ci = 0; ci < bom[ri].length; ci++){
                     if ((ci < 6) && (bom[ri][ci] === null || typeof bom[ri][ci] === 'undefined' || bom[ri][ci].toString().length === 0)){

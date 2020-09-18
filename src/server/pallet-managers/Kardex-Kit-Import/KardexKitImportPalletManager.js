@@ -1,5 +1,6 @@
 const  { PalletManager } = require('../PalletManager');
-const { isNull } = require('util');
+const isNull  = require('util');
+
 
 class KardexKitImportPalletManager extends PalletManager {
 
@@ -16,7 +17,7 @@ class KardexKitImportPalletManager extends PalletManager {
 
     onInput(msg){
 
-        const { jobnumber, data } = msg.payload;
+        const { jobnumber, bom, bom_bins, kits, kit_bins } = msg.payload;
         var errorMsg = "";
         var errorCode = 0;          //0-no error, 1-message only, 2-kit number invalid, 3-job kit mismatch, 4- empty cells
         var kitJobNumber = "";
@@ -35,14 +36,37 @@ class KardexKitImportPalletManager extends PalletManager {
         };
 
         const createKitImportFile = async(data) =>{
+
+            var fields = Object.keys(data[0]);
+            var replacer = function(key, value) { 
+                return value === null ? '' : value } 
+            var csv = data.map(function(row){
+            return fields.map(function(fieldName){
+                return JSON.stringify(row[fieldName], replacer).replace(/\\"/g, '"');
+            }).join(',')
+            })
+
+            csv.unshift(fields.join(',')) // add header column
+            csv = csv.join('\r\n');
+            console.log(csv)
+
             
+            let prefix = "Virtual_BIN_Import,001,01,"
+            for (var di=0; di < data.length; di++){
+                
+            }
 
         };
 
         const createKitBinImportFile = async(data) =>{
-            
+            let prefix = "Virtual_BIN_Import,001,01,"
+            for (var di=0; di < data.length; di++){
+                
+            }
 
         };
+
+
     
       
         
