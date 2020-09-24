@@ -24,13 +24,29 @@ class KardexKitImportPalletManager extends PalletManager {
         var kitNumber = [];
         const { assert, Console } = require('console');
         
-    
-        const createJobImportFile = async(data) =>{
-            
-
-        };
 
         const createBOMBinImportFile = async(data) =>{
+            var fields = Object.keys(data[0]);
+            var replacer = function(key, value) { 
+                return value === null ? '' : value } 
+            var csv = data.map(function(row){
+            return fields.map(function(fieldName){
+                return JSON.stringify(row[fieldName], replacer).replace(/\\"/g, '"');
+            }).join(',')
+            })
+
+            csv.unshift(fields.join(',')) // add header column
+            csv = csv.join('\r\n');
+
+            
+            let prefix = "Virtual_BIN_Import,001,01,"
+            for (var di=0; di < data.length; di++){
+                
+            }
+
+        };
+    
+        const createJobImportFile = async(data) =>{
             
 
         };
@@ -73,7 +89,7 @@ class KardexKitImportPalletManager extends PalletManager {
         (async() => {
 
             try {
-                let kitNumberCheck = await verifyKitNumber(data);
+                let job_import = await createBOMBinImportFile(bom_bins);
                 if (kitNumberCheck === false){
                     if (errorCode === 2){
                         msg.topic = "Invalid Kit Number!";
@@ -84,9 +100,7 @@ class KardexKitImportPalletManager extends PalletManager {
                     msg.payload = errorMsg;                
                     this.send([null,msg]);
                 } else {
-                    var newMsg = {};
-                    this._extendMsgPayload(newMsg, { "jobnumber":jobnumber, "bom": bom, "data":new_data });
-                    this.send([newMsg, null]);
+                    this.send([msg, null]);
                 }
             } catch (error) {
                 this._processError(error);

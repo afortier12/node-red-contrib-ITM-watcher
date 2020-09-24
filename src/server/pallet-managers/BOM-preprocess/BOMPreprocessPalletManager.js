@@ -28,33 +28,34 @@ class BOMPreprocessPalletManager extends PalletManager {
             var pos =  file.lastIndexOf("\\");
             if (pos > 0) {
                 var filename = file.slice(pos+1, file.length);
-                if (isNaN(filename.slice(0,1))){
-                    jobNumber = filename.slice(0,5);
-                    if (isNaN(jobNumber.substring(1, 5))){
-                        errorCode = 2;
-                        errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
-                    }
-                } else if (isNaN(filename.slice(4,5)) || (filename.slice(4,5) === ' ')){
-                    jobNumber = filename.slice(0,4);
-                    if (isNaN(jobNumber)){
-                        errorCode = 2;
-                        errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
-                    }
-                } else {
-                    jobNumber = filename.slice(0,5);
-                    if (isNaN(jobNumber)){
-                        errorCode = 2;
-                        errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
-                    }
-                }
-                if (errorCode > 0) return null;
-                else return jobNumber;
-
             } else {
-                errorCode = 1;
-                errorMsg = "Path not found in file name";
-                return null;
+               var filename = file;
             }
+
+            if (isNaN(filename.slice(0,1))){
+                jobNumber = filename.slice(0,5);
+                if (isNaN(jobNumber.substring(1, 5))){
+                    errorCode = 2;
+                    errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
+                    return;
+                }
+            } else if (isNaN(filename.slice(4,5)) || (filename.slice(4,5) === ' ')){
+                jobNumber = filename.slice(0,4);
+                if (isNaN(jobNumber)){
+                    errorCode = 2;
+                    errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
+                }
+            } else {
+                jobNumber = filename.slice(0,5);
+                if (isNaN(jobNumber)){
+                    errorCode = 2;
+                    errorMsg = "Invalid job number! Must be 4-5 digits or a letter followed by 4 digits";
+                }
+            }
+            
+            if (errorCode > 0) return null;
+            else return jobNumber;
+
         };
 
 
@@ -161,7 +162,7 @@ class BOMPreprocessPalletManager extends PalletManager {
                     } else {
                         msg.topic = "Filename Invalid!";
                     }
-                    msg.errorCode = errorcode;
+                    msg.errorCode = errorCode;
                     msg.payload = errorMsg;                
                     this.send([null,msg]);
                 } else {
