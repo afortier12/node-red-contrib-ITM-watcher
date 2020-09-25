@@ -33,11 +33,17 @@ class KitPreprocessPalletManager extends PalletManager {
                 var pos =  filename.lastIndexOf(".");
                 if (pos > 0) {
                     var tempfilename = filename.substring(0, pos);
+                    pos = tempfilename.indexOf("\\");
+                    if (pos > 0){
+                        tempfilename = tempfilename.substring(pos + 1, tempfilename.length);
+                        tempfilename = tempfilename.trim();
+                    }
                     pos = tempfilename.indexOf(":");
                     if (pos > 0){
                         tempfilename = tempfilename.substring(pos + 1, tempfilename.length);
                         tempfilename = tempfilename.trim();
                     }
+
                     if (filename.lastIndexOf("-") > 0){
                         kitJobNumber = tempfilename.substring(0,tempfilename.lastIndexOf("-"));
                         tempKitNumber = tempfilename.substring(tempfilename.lastIndexOf("-") + 1, tempfilename.length);
@@ -84,9 +90,9 @@ class KitPreprocessPalletManager extends PalletManager {
             var breakloop = false;
 
 
-            data.forEach(function (strdata, idx, arr){
-                if (breakloop || !((Object.prototype.toString.call(strdata.data) === '[object String]') && strdata.data.includes("\n"))) return;
-                var kitdata = strdata.data.split("\n");
+            for(var idx=0; idx< data.length; idx++){
+                if (breakloop || !((Object.prototype.toString.call(data[idx].data) === '[object String]') && data[idx].data.includes("\n"))) return;
+                var kitdata = data[idx].data.split("\n");
                 var new_kit = {kit:"", bom:[]};
                 new_kit.kit = kitNumber[idx];
                 for (var ri = 0; ri < kitdata.length; ri++){
@@ -134,7 +140,7 @@ class KitPreprocessPalletManager extends PalletManager {
                 if (new_kit.bom.length > 0){
                     new_bom.push(new_kit);
                 }
-            });
+            }
             if (breakloop) return null;
             else return new_bom;
         };
