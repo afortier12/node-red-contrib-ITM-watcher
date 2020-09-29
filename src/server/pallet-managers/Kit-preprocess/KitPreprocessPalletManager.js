@@ -27,9 +27,9 @@ class KitPreprocessPalletManager extends PalletManager {
         const verifyKitNumber = async(data) =>{
             var tempKitNumber = "";
             var breakloop = false;
-            data.forEach(function (file, idx, arr){
-                if (breakloop) return;
-                var filename = file.filename;
+            let kits = data.data;
+            for (var idx=0; idx<kits.length; idx++){
+                var filename = kits[idx].filename;
                 var pos =  filename.lastIndexOf(".");
                 if (pos > 0) {
                     var tempfilename = filename.substring(0, pos);
@@ -77,7 +77,7 @@ class KitPreprocessPalletManager extends PalletManager {
                 if (!breakloop){
                     kitNumber.push(tempKitNumber);
                 }
-            });
+            }
             return !breakloop;
 
         };
@@ -88,11 +88,11 @@ class KitPreprocessPalletManager extends PalletManager {
 
             let new_bom = [];
             var breakloop = false;
+            let kits = data.data;
 
-
-            for(var idx=0; idx< data.length; idx++){
-                if (breakloop || !((Object.prototype.toString.call(data[idx].data) === '[object String]') && data[idx].data.includes("\n"))) return;
-                var kitdata = data[idx].data.split("\n");
+            for(var idx=0; idx< kits.length; idx++){
+                if (breakloop || !((Object.prototype.toString.call(kits[idx].data) === '[object String]') && kits[idx].data.includes("\n"))) return;
+                var kitdata = kits[idx].data.split("\n");
                 var new_kit = {kit:"", bom:[]};
                 new_kit.kit = kitNumber[idx];
                 for (var ri = 0; ri < kitdata.length; ri++){
