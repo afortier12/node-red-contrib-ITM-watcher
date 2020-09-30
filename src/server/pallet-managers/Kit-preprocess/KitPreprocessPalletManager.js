@@ -83,16 +83,41 @@ class KitPreprocessPalletManager extends PalletManager {
         };
     
 
+        const removeDuplicates = async(bom) => {
+            let new_bom = [];
+            for (var idx = 0; idx < bom.length; idx++){
+                let row = bom[idx].split(",");
+                let bom_det = row[1]; 
+
+                let found = false;
+                let isnum = /^\d+$/.test(bom_det);
+
+                if (isnum && row.length > 8){
+                    for (var ri = new_bom.length - 1; ri >= 0; ri--){
+                        if (new_bom[ri][1] == bom_det){
+                            found = true;
+                        } 
+                    }
+                    if (!found){
+                        new_bom.push(bom[idx]);
+                    }
+                }
+            }
+            return new_bom;
+        };
+
+
         //add check if kit det and qty are numbers
         const formatKitBOM = async(data) =>{
 
             let new_bom = [];
             var breakloop = false;
-            let kits = data.data;
-
+            
+            let kits  = data.data;
             for(var idx=0; idx< kits.length; idx++){
                 if (breakloop || !((Object.prototype.toString.call(kits[idx].data) === '[object String]') && kits[idx].data.includes("\n"))) return;
-                var kitdata = kits[idx].data.split("\n");
+
+                var kitdata = await removeDuplicates(kits[idx].data.split("\n"));
                 var new_kit = {kit:"", bom:[]};
                 new_kit.kit = kitNumber[idx];
                 for (var ri = 0; ri < kitdata.length; ri++){

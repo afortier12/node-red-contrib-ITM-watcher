@@ -319,14 +319,14 @@ class KardexKitImportPreprocessPalletManager extends PalletManager {
                 }
             }
 
-            bom_bins.push({"kit":stdBinName, "width":maxStdTrayWidth});
-            bom_bins.push({"kit":cmpBinName, "width":48});
+            bom_bins.push({"kit":stdBinName, "width":maxStdTrayWidth, "depth":34, "height":7.5});
+            bom_bins.push({"kit":cmpBinName, "width":48, "depth":34, "height":7.5});
 
             if (cmpTrayCount > 1){  
                 for (var idx = 1; idx < cmpTrayCount-1; idx++){
-                    bom_bins.push({"kit":cmpBinName + idx.toString(), "width":48});
+                    bom_bins.push({"kit":cmpBinName + idx.toString(), "width":48, "depth":34, "height":7.5});
                 }
-                bom_bins.push({"kit":cmpBinName + idx.toString(), "width":Math.max(cmpArea, 24)});
+                bom_bins.push({"kit":cmpBinName + idx.toString(), "width":Math.max(cmpArea, 24),"depth":34, "height":7.5});
             }
             
             return bom_bins;
