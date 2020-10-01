@@ -1,6 +1,7 @@
 const  { PalletManager } = require('../PalletManager');
 const isNull  = require('util');
 const fs = require('fs');
+const chokidar = require('chokidar');
 
 
 class KardexKitImportPalletManager extends PalletManager {
@@ -14,7 +15,6 @@ class KardexKitImportPalletManager extends PalletManager {
         this.onInput = this.onInput.bind(this._self);
 
     }
-    
 
     onInput(msg){
 
@@ -25,7 +25,50 @@ class KardexKitImportPalletManager extends PalletManager {
         var kitJobNumber = "";
         var kitNumber = [];
         const { assert, Console } = require('console');
-        
+
+        const startListening = (path, action, timeout) => 
+            new Promise((resolve, reject)=>{
+                const watcher = chokidar.watch(path, {
+                    persistent: true,
+                    depth: 0,
+                    ignoreInitial: true,
+                    awaitWriteFinish:true,
+                    usePolling:true,
+                    alwaysStat: true,
+                    useFsEvents : true,
+                    binaryInterval: 1000
+                  })
+    
+    
+                watcher.on('unlink',(filename) => {
+                    this._processSuccess(action + " processed; "+ filename + " deleted");
+                    msg.topic = "import_status";
+                    let import_status = {"type": 2, "message":action + " processed; "+ filename + " deleted"};
+                    msg.import_status = import_status;
+                    this.send([null,msg,null]);
+                    watcher.close();
+                    resolve('');
+                })
+    
+                watcher.on('ready', () => {
+                    this._processWaiting("Waiting for: " + action)
+                    msg.topic = "import_status";
+                    let import_status = {"type": 1, "message":"Waiting for: " + action + "..."};
+                    msg.import_status = import_status;
+                    this.send([null,msg,null]);
+                    setTimeout(() => {
+                    }, timeout)
+                  }).on('error', (err) => {
+                    msg.topic = "import_status";
+                    let import_status = {"type": 3, "message":"Error: " + action + " failed!"};
+                    msg.import_status = import_status;
+                    watcher.close();
+                    reject(Error(err))
+                  })
+            }).catch(error => {
+                throw error;
+            });
+
 
         const createBOMBinImportFile = async(data, path, folder, jobnumber) =>{
            
@@ -63,7 +106,7 @@ class KardexKitImportPalletManager extends PalletManager {
             } catch (err) {
                 errorCode = 2;
                 errorMsg = err;
-                return false;
+                return null;
             }
 
             //create trigger file
@@ -75,10 +118,10 @@ class KardexKitImportPalletManager extends PalletManager {
             } catch (err) {
                 errorCode = 1;
                 errorMsg = err;
-                return false;
+                return null;
             }   
             
-            return true;
+            return filename;
         };
     
         const createJobImportFile = async(data, path, folder, jobnumber) =>{
@@ -102,7 +145,7 @@ class KardexKitImportPalletManager extends PalletManager {
             } catch (err) {
                 errorCode = 2;
                 errorMsg = err;
-                return false;
+                return null;
             }
 
             //create trigger file
@@ -114,10 +157,10 @@ class KardexKitImportPalletManager extends PalletManager {
             } catch (err) {
                 errorCode = 1;
                 errorMsg = err;
-                return false;
+                return null;
             }   
             
-            return true;
+            return filename;
 
         };
 
@@ -166,7 +209,7 @@ class KardexKitImportPalletManager extends PalletManager {
                 } catch (err) {
                     errorCode = 2;
                     errorMsg = err;
-                    return false;
+                    return null;
                 }
             }
 
@@ -179,10 +222,10 @@ class KardexKitImportPalletManager extends PalletManager {
             } catch (err) {
                 errorCode = 1;
                 errorMsg = err;
-                return false;
+                return null;
             }  
             
-            return true;
+            return filename;
 
         };
 
@@ -217,13 +260,13 @@ class KardexKitImportPalletManager extends PalletManager {
 
             csv = csv.join('\r\n');
 
-            filename = filepath + "\\" + jobnumber.toString() + + "_kit_bins.csv";           
+            filename = filepath + "\\" + jobnumber.toString() + "_kit_bins.csv";           
             try{
                 fs.writeFileSync(filename, csv);
             } catch (err) {
                 errorCode = 2;
                 errorMsg = err;
-                return false;
+                return null;
             }
 
             //create trigger file
@@ -235,10 +278,10 @@ class KardexKitImportPalletManager extends PalletManager {
             } catch (err) {
                 errorCode = 1;
                 errorMsg = err;
-                return false;
+                return null;
             }   
             
-            return true;
+            return filename;
 
         };
 
@@ -258,33 +301,48 @@ class KardexKitImportPalletManager extends PalletManager {
 
             try {
                 let bom_bin_import = await createBOMBinImportFile(bom_bins, path, bin_folder, jobnumber);
-                if (bom_bin_import === false){
+                if (bom_bin_import === null){
                     msg.topic = "Bin import file creation error!";
                     msg.errorCode = errorCode;
                     msg.payload = errorMsg;                
-                    this.send([null,msg]);
+                    this.send([null,null,msg]);
                 } else {
+
+                    let bin_res = await startListening(bom_bin_import, "Job bin import ...", 60000);
+
                     let job_import = await createJobImportFile(bom, path, job_folder, jobnumber)
-                    if (job_import === false){
+                    if (job_import === null){
                         msg.topic = "Job import file creation error!";
                         msg.errorCode = errorCode;
                         msg.payload = errorMsg;                
-                        this.send([null,msg]);
+                        this.send([null,null,msg]);
                     } else {
+
+                        let job_res = await startListening(job_import, "Job BOM import ...", 60000);
+
                         let kit_bom_import = await createKitImportFile(kits, path, kit_folder, jobnumber, kit_bins)
-                        if (kit_bom_import === false){
+                        if (kit_bom_import === null){
                             msg.topic = "Kit import file creation error!";
                             msg.errorCode = errorCode;
                             msg.payload = errorMsg;                
-                            this.send([null,msg]);
+                            this.send([null,null,msg]);
                         } else {
+
+                            let kit_res = await startListening(kit_bom_import, "Kit BOM import ...", 60000);
+
                             let kit_bin_import = await createKitBinImportFile(kit_bins, path, bin_folder, jobnumber)
-                            if (kit_bin_import === false){
+                            if (kit_bin_import === null){
                                 msg.topic = "Kit bin import file creation error!";
                                 msg.errorCode = errorCode;
                                 msg.payload = errorMsg;                
-                                this.send([null,msg]);
+                                this.send([null,null,msg]);
                             } else {
+
+                                let kit_bin_res = await startListening(kit_bin_import, "Kit BOM import ...", 60000);
+                                msg.topic = "import_status";
+                                let import_status = {"type": 2, "message":"All files imported successfully!"};
+                                msg.import_status = import_status;
+                                this.send([null,msg,null]);
                                 var newMsg = {};
                                 this._extendMsgPayload(newMsg, {});
                                 this.send([msg, null]);
@@ -296,7 +354,7 @@ class KardexKitImportPalletManager extends PalletManager {
                 this._processError(error);
                 this.error(error);
                 msg.payload = errorMsg;
-                this.send([null,msg]);
+                this.send([null,null,msg]);
             }
         })();
 
