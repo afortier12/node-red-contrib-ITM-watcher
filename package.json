@@ -14,7 +14,8 @@
       "bom": "/pallets/BOM-preprocess/bom_preprocess.js",
       "kit": "/pallets/kitting-preprocess/kit_preprocess.js",
       "import_preprocess": "/pallets/Kardex-Kit-Import-Preprocess/kardex_kit_import_preprocess.js",
-      "import_file_creations": "/pallets/Kardex-Kit-Import/kardex_kit_import.js"
+      "import_file_create": "/pallets/Kardex-Kit-Import-Create/kardex_kit_import_create.js",
+      "import_file_monitor": "/pallets/Kardex-Kit-Import-Monitor/kardex_kit_import_monitor.js"
     }
   },
   "nodemonConfig": {
