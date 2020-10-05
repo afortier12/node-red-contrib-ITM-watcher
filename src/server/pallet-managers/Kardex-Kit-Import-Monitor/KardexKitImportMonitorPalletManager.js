@@ -18,7 +18,7 @@ class KardexKitImportMonitorPalletManager extends PalletManager {
 
     onInput(msg){
 
-        const { path, action } = msg.payload;
+        const { path, action } = msg.import_status;
         var errorMsg = "";
         var errorCode = 0;      
 
@@ -36,38 +36,37 @@ class KardexKitImportMonitorPalletManager extends PalletManager {
                     binaryInterval: 1000
                   }); 
 
-                  var id = this.id;
+                var id = this.id;
     
                 watcher.on('unlink',(filename) => {
-                    id++;
                     this._processSuccess(action + " processed; "+ filename + " deleted");
                     msg.topic = "import_status";
-                    let import_status = {"id": id, "type": 2, "message":action + " processed; "+ filename + " deleted"};
-                    msg.import_status = import_status;
-                    this.send([null,msg,null]);
-                    watcher.close();
+                    let import_status = {"type": 2, "message":action + " processed; "+ filename + " deleted"};
+                    msg.payload = import_status;
+                    this.send([msg,msg,null]);
+                    watcher.unwatch(filename);
                     resolve('');
                 })
     
                 watcher.on('ready', () => {
                     this._processWaiting("Waiting for: " + action)
                     msg.topic = "import_status";
-                    let import_status = {"id": id, "type": 1, "message":"Waiting for: " + action + "..."};
-                    msg.import_status = import_status;
-                    this.send([null,msg,null]);
+                    let import_status = {"type": 1, "message":"Waiting for: " + action + "..."};
+                    msg.payload = import_status;
+                    this.send([msg,null,null]);
                     setTimeout(() => {
-                        id++;
                         msg.topic = "import_status";
-                        let import_status = {"id": id, "type": 3, "message":"Error: " + action + " failed!"};
+                        let err = action + " timeout!"
+                        let import_status = {"type": 3, "message":err};
                         msg.import_status = import_status;
                         watcher.close();
                         reject(Error(err))
                     }, timeout)
                   }).on('error', () => {
-                    id++;
                     msg.topic = "import_status";
-                    let import_status = {"id": id, "type": 3, "message":"Error: " + action + " failed!"};
-                    msg.import_status = import_status;
+                    let err = action + " failed!";
+                    let import_status = {"type": 3, "message": err};
+                    msg.payload = import_status;
                     watcher.close();
                     reject(Error(err))
                   })
@@ -82,14 +81,20 @@ class KardexKitImportMonitorPalletManager extends PalletManager {
 				var fo = fs.openSync(path, 'w');
 				fs.closeSync(fo, 'w');
             
-				if (fs.existsSync(path))
-					await filewatcher(path, action, 60000);
+				if (fs.existsSync(path)){
+                    await startListening(path, action, 60000);
+                } else {
+                    this._processError("Error creating trigger file: " + path);
+                    this.error("Error creating trigger file: " + path);
+                    msg.payload = "Error creating trigger file: " + path;
+                    this.send([msg,null,msg]);
+                }
 
             } catch (error) {
                 this._processError(error);
                 this.error(error);
                 msg.payload = error;
-                this.send([null,msg]);
+                this.send([msg,null,msg]);
             }
         })();
 

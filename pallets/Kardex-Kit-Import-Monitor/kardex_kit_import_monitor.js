@@ -17,6 +17,7 @@ module.exports = function(RED) {
             palletManager.onInput(msg);
         });
 
+        node.done
             
     }
 
