@@ -1,0 +1,21 @@
+<script type="text/javascript">
+  RED.nodes.registerType("ITM watcher", {
+    category: "custom",
+    color: "#CCFFFF",
+    defaults: {},
+    inputs: 1,
+    outputs: 3,
+    icon: "itm_logo_icon.png",
+    label: function () {
+      return this.name || "ITM watcher";
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="ITM watcher">
+  <div class="form-row"></div>
+</script>
+
+<script type="text/html" data-help-name="ITM watcher">
+  <p>Monitors directories to track creation, deletion or updates of files</p>
+</script>
